@@ -1,8 +1,7 @@
-import pygame
-import os
-from sys import exit
+import pygame ,os , sys
 from setting import *
 from tiles import Tile
+from level import Level
 
 # ----- INIT -----
 pygame.init()
@@ -12,20 +11,9 @@ CLOCK = pygame.time.Clock()
 
 # ----- GEN VAR -----
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+LEVEL = Level(LEVEL_MAP, SCREEN)
 # ----- GEN VAR(END)-----
 
-
-# for row_index, row in enumerate(WORLD_MAP):
-#     for col_index, cell in enumerate(row):
-#         x = col_index * tile_size
-#         y = row_index * tile_size
-
-#         if cell == 'X':
-#             tile = Tile((x, y), tile_size)
-#             self.tiles.add(tile)
-
-
-test_tile = pygame.sprite.Group(Tile((100,100), 200))        
 while True:
         
     for event in pygame.event.get():
@@ -35,6 +23,7 @@ while True:
              exit()
 
     SCREEN.fill('black')
-    test_tile.draw(SCREEN)
+    LEVEL.run()
+
     pygame.display.update()
     CLOCK.tick(FPS)
