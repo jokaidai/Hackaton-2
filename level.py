@@ -38,6 +38,7 @@ class Level:
                     player_sprite = Player((x, y))
                     self.player.add(player_sprite)
 
+
     def scroll_x(self:object) -> None:
         """
         method that scroll the screen horizontaly when the player have reach the border
@@ -60,6 +61,38 @@ class Level:
             player.speed = 8
            
 
+    def horizontal_collision(self:object) -> None:
+        """
+        a method that will check all type of horizontal collisions but only horizontal
+        """
+        player = self.player.sprite
+        player.rect.x += player.direction.x * player.speed
+
+        for sprite in self.tiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                if player.direction.x < 0:
+                    player.rect.left = sprite.rect.right
+                elif player.direction.x > 0:
+                    player.rect.right = sprite.rect.left
+
+
+    def vertical_collision(self:object) -> None:
+        """
+        a method that will check all type of vertical collisions but only vertical
+        """
+        player = self.player.sprite
+        player.create_gravity()
+
+        for sprite in self.tiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                if player.direction.y > 0:
+                    player.rect.bottom = sprite.rect.top
+                    player.direction.y = 0
+                elif player.direction.y < 0:
+                    player.rect.top = sprite.rect.bottom
+                    player.direction.y = 0
+
+
     def run(self:object) -> None:
         """
         method that will be called from the main to draw information from this class
@@ -67,10 +100,13 @@ class Level:
         # level tile
         self.tiles.update(self.camera)
         self.tiles.draw(self.display_surface)
+        self.scroll_x()
 
         # player tile
         self.player.update()
+        self.horizontal_collision()
+        self.vertical_collision()
         self.player.draw(self.display_surface)
-        self.scroll_x()
+        
 
 
