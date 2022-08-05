@@ -1,11 +1,10 @@
 import pygame
-import os
 from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
     """
-    handle the main character creation 
+    handle the main character creation and actions
     """
     def __init__(self:object, pos:tuple) -> None:
         super().__init__()
@@ -71,7 +70,7 @@ class Player(pygame.sprite.Sprite):
             self.direction.x = -1
             self.facing_right = False
 
-        elif keys[pygame.K_SPACE]:
+        elif keys[pygame.K_SPACE] and self.direction.y == 0:
              self.jump()
         
         else:
@@ -84,17 +83,19 @@ class Player(pygame.sprite.Sprite):
         """
         if self.direction.y < 0:  
             self.status = 'Jump'
+            self.animation_speed = 0.02
             
         elif self.direction.y > 1: # can not be 0 because gravity is = to 0.8 it will always fall
             self.status = 'Fall'
+            self.animation_speed = 0.02
             
         elif self.direction.x != 0:
             self.status = 'Run'
-     
+            self.animation_speed = 0.08
         else:
             self.status = 'Stand'
+            self.animation_speed = 0.05
             
-
 
     def create_gravity(self:object) -> None:
         """
@@ -117,6 +118,4 @@ class Player(pygame.sprite.Sprite):
         """
         self.check_keys()
         self.check_status()
-        self.animate()
-        
-       
+        self.animate()   
