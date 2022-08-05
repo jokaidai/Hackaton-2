@@ -1,6 +1,5 @@
-import pygame ,os , sys
+import pygame, sys
 from setting import *
-from tiles import Tile
 from level import Level
 
 # ----- INIT -----
@@ -23,7 +22,7 @@ while True:
              exit()
 
     SCREEN.fill('black')
-    LEVEL.run()
+    LEVEL.create_level()
 
     pygame.display.update()
     CLOCK.tick(FPS)

@@ -92,7 +92,7 @@ class Level:
                     player.direction.y = 0
 
 
-    def run(self:object) -> None:
+    def create_level(self:object) -> None:
         """
         method that will be called from the main to draw information from this class
         """

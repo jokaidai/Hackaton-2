@@ -1,5 +1,8 @@
+from numpy import character
 import pygame
 import os
+from support import import_folder
+
 
 class Player(pygame.sprite.Sprite):
     """
@@ -9,17 +12,41 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         # player set up
-        self.image = pygame.image.load(os.path.join('Assets', 'Graphics', 'Oop', 'Stand', 'OopStand.jpg')).convert_alpha()
-        self.imageL = pygame.image.load(os.path.join('Assets', 'Graphics', 'Oop','Stand', 'OopStandLeft.jpg')).convert_alpha()
+        self.import_char_assets()
+        self.frame_index = 0
+        self.animation_speed = 0.08
+        self.image = self.animations['Stand'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
-        self.rect = self.imageL.get_rect(topleft = pos)
 
         #player movement
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 8
-        self.gravity = 0.8
+        self.gravity = 0.4
         self.jump_trigger = -16
 
+    
+    def import_char_assets(self:object) -> None:
+        """
+        a method that make the process of importing an image easy and automated
+        """
+        character_path = 'Assets/Graphics/Oop/'
+        self.animations = {'Stand':[], 'StandL':[], 'Run':[], 'RunL':[], 'Jump':[], 'JumpL':[], 'Attack':[], 'AttackL':[] }
+
+        for animation in self.animations.keys():
+            full_path = character_path + animation
+            self.animations[animation] = import_folder(full_path)
+
+
+    def animate(self:object) -> None:
+        """
+        handle the switching of surface for the character to animate him depending on the situation
+        """
+        animation = self.animations['Stand']
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+        
+        self.image = animation[int(self.frame_index)]
 
     def check_keys(self:object) -> None:
         """
@@ -60,5 +87,6 @@ class Player(pygame.sprite.Sprite):
         'main' method of the class to execute redondant task of the class
         """
         self.check_keys()
+        self.animate()
         
        
