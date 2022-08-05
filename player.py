@@ -18,11 +18,15 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations['Stand'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
 
-        #player movement
+        # player movement
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 8
         self.gravity = 0.4
-        self.jump_trigger = -16
+        self.jump_trigger = -10
+
+        # player status
+        self.status = 'Stand'
+        self.facing_right = True
 
     
     def import_char_assets(self:object) -> None:
@@ -30,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         a method that make the process of importing an image easy and automated
         """
         character_path = 'Assets/Graphics/Oop/'
-        self.animations = {'Stand':[], 'StandL':[], 'Run':[], 'RunL':[], 'Jump':[], 'JumpL':[], 'Attack':[], 'AttackL':[] }
+        self.animations = {'Stand':[], 'StandL':[], 'Run':[], 'RunL':[], 'Jump':[], 'JumpL':[], 'Fall':[], 'FallL':[], 'Attack':[], 'AttackL':[] }
 
         for animation in self.animations.keys():
             full_path = character_path + animation
@@ -41,12 +45,13 @@ class Player(pygame.sprite.Sprite):
         """
         handle the switching of surface for the character to animate him depending on the situation
         """
-        animation = self.animations['Stand']
+        animation = self.animations[self.status]
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
         
         self.image = animation[int(self.frame_index)]
+
 
     def check_keys(self:object) -> None:
         """
@@ -55,16 +60,46 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
            self.direction.x = 1
+           self.facing_right = True
             
-
         elif keys[pygame.K_a]:
             self.direction.x = -1
-        
+            self.facing_right = False
+
         elif keys[pygame.K_SPACE]:
              self.jump()
         
         else:
             self.direction.x = 0
+
+
+    def check_status(self:object) -> None:
+        """
+        method that will check the status of the char ( running, jumping ect ect).
+        """
+        if self.direction.y < 0: 
+            if self.facing_right:
+                self.status = 'Jump'
+            else:
+                self.status = 'JumpL'
+
+        elif self.direction.y > 1: # can not be 0 because gravity is = to 0.8 it will always fall
+            if self.facing_right:
+                self.status = 'Fall'
+            else:
+                self.status = 'FallL'
+
+        elif self.direction.x != 0:
+            if self.facing_right:
+                self.status = 'Run'
+            else:
+                self.status = 'RunL'
+     
+        else:
+            if self.facing_right: 
+                self.status = 'Stand'
+            else:
+                self.status = 'StandL'
 
 
     def create_gravity(self:object) -> None:
@@ -87,6 +122,7 @@ class Player(pygame.sprite.Sprite):
         'main' method of the class to execute redondant task of the class
         """
         self.check_keys()
+        self.check_status()
         self.animate()
         
        
