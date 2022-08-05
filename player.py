@@ -1,4 +1,3 @@
-from numpy import character
 import pygame
 import os
 from support import import_folder
@@ -14,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         # player set up
         self.import_char_assets()
         self.frame_index = 0
-        self.animation_speed = 0.08
+        self.animation_speed = 0.15
         self.image = self.animations['Stand'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
 
@@ -34,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         a method that make the process of importing an image easy and automated
         """
         character_path = 'Assets/Graphics/Oop/'
-        self.animations = {'Stand':[], 'StandL':[], 'Run':[], 'RunL':[], 'Jump':[], 'JumpL':[], 'Fall':[], 'FallL':[], 'Attack':[], 'AttackL':[] }
+        self.animations = {'Stand':[], 'Run':[], 'Jump':[], 'Fall':[], 'Attack':[]}
 
         for animation in self.animations.keys():
             full_path = character_path + animation
@@ -47,11 +46,17 @@ class Player(pygame.sprite.Sprite):
         """
         animation = self.animations[self.status]
         self.frame_index += self.animation_speed
+        
         if self.frame_index >= len(animation):
             self.frame_index = 0
-        
-        self.image = animation[int(self.frame_index)]
-
+           
+        image = animation[int(self.frame_index)]    
+        if self.facing_right:
+            self.image = image
+        else:
+            reverse_image = pygame.transform.flip(image, True, False)
+            self.image = reverse_image
+    
 
     def check_keys(self:object) -> None:
         """
@@ -77,29 +82,18 @@ class Player(pygame.sprite.Sprite):
         """
         method that will check the status of the char ( running, jumping ect ect).
         """
-        if self.direction.y < 0: 
-            if self.facing_right:
-                self.status = 'Jump'
-            else:
-                self.status = 'JumpL'
-
+        if self.direction.y < 0:  
+            self.status = 'Jump'
+            
         elif self.direction.y > 1: # can not be 0 because gravity is = to 0.8 it will always fall
-            if self.facing_right:
-                self.status = 'Fall'
-            else:
-                self.status = 'FallL'
-
+            self.status = 'Fall'
+            
         elif self.direction.x != 0:
-            if self.facing_right:
-                self.status = 'Run'
-            else:
-                self.status = 'RunL'
+            self.status = 'Run'
      
         else:
-            if self.facing_right: 
-                self.status = 'Stand'
-            else:
-                self.status = 'StandL'
+            self.status = 'Stand'
+            
 
 
     def create_gravity(self:object) -> None:
