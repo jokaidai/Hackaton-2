@@ -1,4 +1,3 @@
-from tkinter import S
 import pygame
 from player import Player
 from tiles import Tile

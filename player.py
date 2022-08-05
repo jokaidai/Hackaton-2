@@ -1,5 +1,5 @@
-from tkinter import N
 import pygame
+import os
 
 class Player(pygame.sprite.Sprite):
     """
@@ -9,9 +9,10 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         # player set up
-        self.image = pygame.Surface((32, 64))
-        self.image.fill('green')
+        self.image = pygame.image.load(os.path.join('Assets', 'Graphics', 'Oop', 'Stand', 'OopStand.jpg')).convert_alpha()
+        self.imageL = pygame.image.load(os.path.join('Assets', 'Graphics', 'Oop','Stand', 'OopStandLeft.jpg')).convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
+        self.rect = self.imageL.get_rect(topleft = pos)
 
         #player movement
         self.direction = pygame.math.Vector2(0, 0)
@@ -27,9 +28,10 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
            self.direction.x = 1
+            
 
         elif keys[pygame.K_a]:
-            self.direction.x =  - 1
+            self.direction.x = -1
         
         elif keys[pygame.K_SPACE]:
              self.jump()
