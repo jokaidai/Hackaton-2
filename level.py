@@ -2,6 +2,7 @@ import pygame
 from player import Player
 from tiles import Tile
 from setting import SCREEN_WIDTH, TILE_SIZE
+from particles import ParticleEffect
 
 class Level:
     """
@@ -12,6 +13,17 @@ class Level:
         self.display_surface = screen
         self.setup_level(level_data)
         self.camera = 0
+
+        #jump dust
+        self.dust_sprite = pygame.sprite.GroupSingle()
+
+
+    def create_jump_particles(self:object, pos:tuple) -> None:
+        """
+        create the jump particle sprites ... need to be in level to access the require variable
+        """
+        jump_particle_spite = ParticleEffect(pos, 'jump')
+        self.dust_sprite.add(jump_particle_spite)
 
 
     def setup_level(self:object, level_data):
@@ -34,7 +46,7 @@ class Level:
 
                 if col == 'P':
     
-                    player_sprite = Player((x, y))
+                    player_sprite = Player((x, y), self.display_surface, self.create_jump_particles)
                     self.player.add(player_sprite)
 
 
@@ -101,11 +113,12 @@ class Level:
         self.tiles.draw(self.display_surface)
         self.scroll_x()
 
+        # dust particle
+        self.dust_sprite.update(self.camera)
+        self.dust_sprite.draw(self.display_surface)
+
         # player tile
         self.player.update()
         self.horizontal_collision()
         self.vertical_collision()
         self.player.draw(self.display_surface)
-        
-
-

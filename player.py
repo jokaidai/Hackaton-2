@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
     """
     handle the main character creation and actions
     """
-    def __init__(self:object, pos:tuple) -> None:
+    def __init__(self:object, pos:tuple, surface:object, create_jump_particles:object) -> None:
         super().__init__()
 
         # player set up
@@ -19,12 +19,19 @@ class Player(pygame.sprite.Sprite):
         # player movement
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 8
-        self.gravity = 0.4
-        self.jump_trigger = -10
+        self.gravity = 0.8
+        self.jump_trigger = -16
 
         # player status
         self.status = 'Stand'
         self.facing_right = True
+
+        # dust particles
+        self.import_run_dust_particles()
+        self.dust_frame_index = 0
+        self.dust_animation_speed = 0.15
+        self.display_surface = surface
+        self.create_jump_particles = create_jump_particles
 
     
     def import_char_assets(self:object) -> None:
@@ -37,6 +44,13 @@ class Player(pygame.sprite.Sprite):
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
+
+
+    def import_run_dust_particles(self:object) -> None:
+        """
+        import the dust particle for the run animation inside a surface
+        """
+        self.dust_run_particles = import_folder('Assets/Graphics/Oop/DustParticles/run')
 
 
     def animate(self:object) -> None:
@@ -57,6 +71,25 @@ class Player(pygame.sprite.Sprite):
             self.image = reverse_image
     
 
+    def run_dust_animate(self:object) -> None:
+        """
+        handle the placing of the dust depending on the player actions
+        """
+        if self.status == 'Run' and self.direction.y == 0:
+            self.dust_frame_index += self.dust_animation_speed
+            if self.dust_frame_index >= len(self.dust_run_particles):
+                self.dust_frame_index = 0
+
+            dust_particles = self.dust_run_particles[int(self.dust_frame_index)]
+            if self.facing_right:
+                pos = self.rect.bottomleft - pygame.math.Vector2(6, 10)
+                self.display_surface.blit(dust_particles, pos)
+            else:
+                reverse_image = pygame.transform.flip(dust_particles, True, False)
+                pos = self.rect.bottomright - pygame.math.Vector2(6, 10)
+                self.display_surface.blit(reverse_image, pos)
+
+
     def check_keys(self:object) -> None:
         """
         check wich key is being pressed and execute the appropriate action for the player
@@ -72,6 +105,7 @@ class Player(pygame.sprite.Sprite):
 
         elif keys[pygame.K_SPACE] and self.direction.y == 0:
              self.jump()
+             self.create_jump_particles(self.rect.midbottom)
         
         else:
             self.direction.x = 0
@@ -118,4 +152,5 @@ class Player(pygame.sprite.Sprite):
         """
         self.check_keys()
         self.check_status()
-        self.animate()   
+        self.animate()
+        self.run_dust_animate()   
