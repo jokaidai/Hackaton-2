@@ -22,6 +22,11 @@ class Level:
         """
         create the jump particle sprites ... need to be in level to access the require variable
         """
+        if self.player.sprite.facing_right:
+            pos -= pygame.math.Vector2(10, 5)
+        else:
+            pos += pygame.math.Vector2(10, -5)
+
         jump_particle_spite = ParticleEffect(pos, 'jump')
         self.dust_sprite.add(jump_particle_spite)
 
@@ -108,14 +113,15 @@ class Level:
         """
         method that will be called from the main to draw information from this class
         """
-        # level tile
-        self.tiles.update(self.camera)
-        self.tiles.draw(self.display_surface)
-        self.scroll_x()
 
         # dust particle
         self.dust_sprite.update(self.camera)
         self.dust_sprite.draw(self.display_surface)
+
+        # level tile
+        self.tiles.update(self.camera)
+        self.tiles.draw(self.display_surface)
+        self.scroll_x()
 
         # player tile
         self.player.update()
