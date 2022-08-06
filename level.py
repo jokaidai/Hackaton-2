@@ -13,6 +13,7 @@ class Level:
         self.display_surface = screen
         self.setup_level(level_data)
         self.camera = 0
+        self.collision_point = 0  # need that to be able to turn off player.on_left and on_right
 
         #jump dust
         self.dust_sprite = pygame.sprite.GroupSingle()
@@ -88,9 +89,21 @@ class Level:
             if sprite.rect.colliderect(player.rect):
                 if player.direction.x < 0:
                     player.rect.left = sprite.rect.right
+                    player.on_left = True
+                    self.collision_point = player.rect.left  # record the collision point
+
+
                 elif player.direction.x > 0:
                     player.rect.right = sprite.rect.left
+                    player.on_right = True
+                    self.collision_point = player.rect.right  # record the collision point
 
+        # the next collection of if checking if the collision is over to turn false on_left and on_right
+        if  player.on_left and (player.rect.left < self.collision_point or player.direction.x >= 0):
+            player.on_left = False
+        
+        if  player.on_right and (player.rect.right > self.collision_point or player.direction.x <= 0):
+            player.on_right = False
 
     def vertical_collision(self:object) -> None:
         """
@@ -104,9 +117,19 @@ class Level:
                 if player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
+                    player.on_ground = True
+
                 elif player.direction.y < 0:
                     player.rect.top = sprite.rect.bottom
                     player.direction.y = 0
+                    player.on_ceiling = True
+        
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+            player.on_ground = False 
+
+
+        if player.on_ceiling and  player.direction.y > 0:
+            player.on_ceiling = False 
 
 
     def create_level(self:object) -> None:
