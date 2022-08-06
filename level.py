@@ -17,6 +17,7 @@ class Level:
 
         #jump dust
         self.dust_sprite = pygame.sprite.GroupSingle()
+        self.player_on_ground = False
 
 
     def create_jump_particles(self:object, pos:tuple) -> None:
@@ -30,6 +31,31 @@ class Level:
 
         jump_particle_spite = ParticleEffect(pos, 'jump')
         self.dust_sprite.add(jump_particle_spite)
+
+
+    # this method is called before the vertical collision to record the status of the player before any collision happen
+    def get_player_on_ground(self:object) -> None:
+        """
+        method that will check if the player is on the ground and initialise the Player_on_ground
+        """
+        if self.player.sprite.on_ground:
+            self.player_on_ground = True
+        else:
+            self.player_on_ground = False
+
+    # this method is called after the vertical collision that way we can check if there is a difference between the 2 player_on_the ground if there is the player collide with the ground from a jump (landed)
+    def create_land_particles(self:object) -> None:
+        """
+        create the land particles sprite
+        """
+        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+            if self.player.sprite.facing_right:
+                offset = pygame.math.Vector2(10, 15)
+            else:
+                 offset = pygame.math.Vector2(-10, 15)
+
+            fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 'land')      
+            self.dust_sprite.add(fall_dust_particle)
 
 
     def setup_level(self:object, level_data):
@@ -105,6 +131,7 @@ class Level:
         if  player.on_right and (player.rect.right > self.collision_point or player.direction.x <= 0):
             player.on_right = False
 
+
     def vertical_collision(self:object) -> None:
         """
         a method that will check all type of vertical collisions but only vertical
@@ -149,5 +176,7 @@ class Level:
         # player tile
         self.player.update()
         self.horizontal_collision()
+        self.get_player_on_ground()
         self.vertical_collision()
+        self.create_land_particles()
         self.player.draw(self.display_surface)

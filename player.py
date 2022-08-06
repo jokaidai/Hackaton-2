@@ -97,6 +97,7 @@ class Player(pygame.sprite.Sprite):
         elif self.on_ceiling:
             self.rect = self.image.get_rect(midtop = self.rect.midtop)
         
+        
 
     def run_dust_animate(self:object) -> None:
         """
