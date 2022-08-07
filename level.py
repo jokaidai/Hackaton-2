@@ -1,19 +1,26 @@
 import pygame
 from player import Player
-from tiles import Tile
+from support import import_csv_files, import_cut_graphics
+from tiles import Tile, StaticTile
 from setting import SCREEN_WIDTH, TILE_SIZE
 from particles import ParticleEffect
+
 
 class Level:
     """
     class that rely on the Tile class to draw the level
     """
-    def __init__(self:object, level_data:list, screen) -> None:
+    def __init__(self:object, level_data:dict, screen) -> None:
         
         self.display_surface = screen
-        self.setup_level(level_data)
+        # self.setup_level(level_data)
         self.camera = 0
         self.collision_point = 0  # need that to be able to turn off player.on_left and on_right
+
+        #map data
+        platform_layout = import_csv_files(level_data['platform'])
+        self.platform = self.setup_level(platform_layout, 'platform')
+        
 
         #jump dust
         self.dust_sprite = pygame.sprite.GroupSingle()
@@ -58,28 +65,50 @@ class Level:
             self.dust_sprite.add(fall_dust_particle)
 
 
-    def setup_level(self:object, level_data):
+    def setup_level(self:object, level_data, type):
         """
-        method that will draw the tiles accordinf to the level data
+        method that will draw the tiles accordind to the level data
         """
-        self.tiles = pygame.sprite.Group()
-        self.player = pygame.sprite.GroupSingle()
+        # self.tiles = pygame.sprite.Group()
+        # self.player = pygame.sprite.GroupSingle()
 
+        sprite_group = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
         for row_idx, row in enumerate(level_data):
             for col_idx, col in enumerate(row):
-                
-                x = col_idx * TILE_SIZE
-                y = row_idx * TILE_SIZE
-                
-                if col == 'X':
-                    
-                    tile_sprite = Tile((x, y), TILE_SIZE)
-                    self.tiles.add(tile_sprite)
+                if col != '-1':
+                    x = col_idx * TILE_SIZE
+                    y = row_idx * TILE_SIZE
 
-                if col == 'P':
+                    if col == 'P':
     
-                    player_sprite = Player((x, y), self.display_surface, self.create_jump_particles)
-                    self.player.add(player_sprite)
+                        player_sprite = Player((x, y), self.display_surface, self.create_jump_particles)
+                        self.player.add(player_sprite)
+                
+                    if type == 'platform':
+                        # platform_tile_list = import_cut_graphics('Assets/Graphics/Level/LevelAssets/Assets.png')
+                        # tile_surface = platform_tile_list[int(col)]
+                        sprite = Tile((x, y), TILE_SIZE,)
+                        # sprite = StaticTile(TILE_SIZE, (x,y), tile_surface)
+                        sprite_group.add(sprite)
+
+        return sprite_group
+
+        # for row_idx, row in enumerate(level_data):
+        #     for col_idx, col in enumerate(row):
+                
+        #         x = col_idx * TILE_SIZE
+        #         y = row_idx * TILE_SIZE
+                
+        #         if col == 'X':
+                    
+        #             tile_sprite = Tile((x, y), TILE_SIZE)
+        #             self.tiles.add(tile_sprite)
+
+        #         if col == 'P':
+    
+        #             player_sprite = Player((x, y), self.display_surface, self.create_jump_particles)
+        #             self.player.add(player_sprite)
 
 
     def scroll_x(self:object) -> None:
@@ -111,7 +140,7 @@ class Level:
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
 
-        for sprite in self.tiles.sprites():
+        for sprite in self.platform.sprites():
             if sprite.rect.colliderect(player.rect):
                 if player.direction.x < 0:
                     player.rect.left = sprite.rect.right
@@ -139,7 +168,7 @@ class Level:
         player = self.player.sprite
         player.create_gravity()
 
-        for sprite in self.tiles.sprites():
+        for sprite in self.platform.sprites():
             if sprite.rect.colliderect(player.rect):
                 if player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
@@ -169,11 +198,11 @@ class Level:
         self.dust_sprite.draw(self.display_surface)
 
         # level tile
-        self.tiles.update(self.camera)
-        self.tiles.draw(self.display_surface)
+        self.platform.update(self.camera) #self.tiles.update()
+        self.platform.draw(self.display_surface)
         self.scroll_x()
 
-        # player tile
+        # # player tile
         self.player.update()
         self.horizontal_collision()
         self.get_player_on_ground()

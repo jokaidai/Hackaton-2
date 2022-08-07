@@ -10,7 +10,7 @@ CLOCK = pygame.time.Clock()
 
 # ----- GEN VAR -----
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-LEVEL = Level(LEVEL_MAP, SCREEN)
+LEVEL = Level(LEVEL_0, SCREEN)
 # ----- GEN VAR(END)-----
 
 while True:
